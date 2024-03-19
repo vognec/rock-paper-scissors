@@ -1,13 +1,14 @@
+let playerScore = 0;
+let computerScore = 0;
+let playerChoice = "";
+let computerChoice = "";
+let winner;
+
 function getComputerChoice() {
     let randNum = Math.floor(Math.random() * 3);
     if (randNum === 0) return 'rock';
     else if (randNum === 1) return 'paper';
     else return 'scissors';
-}
-
-function getPlayerChoice() {
-    let playerChoice = prompt('Enter choice: ');
-    return playerChoice.toLowerCase();
 }
 
 function playRound(playerSelection, computerChoice) {
@@ -23,53 +24,112 @@ function playRound(playerSelection, computerChoice) {
     else return 2;
 }
 
-function displayResult(winner, playerChoice, computerChoice) {
-    if (winner === 0) {
-        console.log(`You win! ${playerChoice} beats ${computerChoice}`);
+function updateScore(winner, playerChoice, computerChoice) {
+    if (winner == 0) {
+        playerScore += 1;
+        document.querySelector(".player-score").textContent = playerScore;
     }
-    else if (winner === 1) {
-        console.log(`You loose! ${computerChoice} beats ${playerChoice}`);
+    else if (winner == 1) {
+        computerScore += 1;
+        document.querySelector(".computer-score").textContent = computerScore;
     }
-    else {
-        console.log("It's a tie!");
-    }
+
 }
 
 function displayWinner(playerScore, computerScore) {
-    if (playerScore > computerScore){
-        console.log('Game over! You Win!');
-    }
-    else if (computerScore > playerScore){
-        console.log('Game over! You loose!');
+    if (playerScore == 5){
+        document.querySelector(".result").textContent = "Game Over! You Win!";
     }
     else {
-        console.log("Game over! It's a tie!");
+        document.querySelector(".result").textContent = "Game Over! You Loose!";
     }
-}
-
-function playGame() {
-    let playerScore = 0;
-    let computerScore = 0;
-
-    for (let i = 0; i < 5; i++) {
-        let playerChoice = getPlayerChoice();
-        console.log(`Player choice : ${playerChoice}`);
-        let computerChoice = getComputerChoice();
-        console.log(`Computer Choice : ${computerChoice}`);
-        let winner = playRound(playerChoice, computerChoice);
-        displayResult(winner, playerChoice, computerChoice);
-        
-        if (winner === 0) playerScore += 1;
-        else if ( winner === 1) computerScore += 1;
-        else { 
-            computerScore += 1;
-            playerScore += 1;
-        }
-    }
-
-    displayWinner(playerScore, computerScore);
     
 }
 
+function checkWinner(playerScore, computerScore) {
+    if (playerScore == 5 || computerScore == 5){
+            displayWinner(playerScore, computerScore);
+            return true;
+        }
+    return false;
+}
 
-playGame();
+function updateChoices(playerChoice, computerChoice){
+    document.querySelector(".choices").textContent = playerChoice + " vs " + computerChoice;
+}
+
+function updateRoundResult(winner){
+    if (winner == 0) {
+        document.querySelector(".result").textContent = "You Win Round!";
+    }
+    else if (winner == 1) {
+        document.querySelector(".result").textContent = "Computer Win Round!";
+    }
+    else {
+        document.querySelector(".result").textContent = "Tie Round!";
+    }
+    
+}
+
+function playAgain() {
+    const gameContainer = document.querySelector(".game-container");
+    
+    const replayContainer = document.createElement("div");
+    replayContainer.classList.add("replay-container");
+
+    const playAgainQuestion = document.createElement("p");
+    playAgainQuestion.classList.add("play-again-question");
+    playAgainQuestion.textContent = "Would you like to play again?";
+
+    const yesButton = document.createElement("button");
+    yesButton.classList.add("play-again-button");
+    yesButton.textContent = "Yes";
+
+    replayContainer.appendChild(playAgainQuestion);
+    replayContainer.appendChild(yesButton);
+    
+    gameContainer.appendChild(replayContainer);
+
+    let replay = document.querySelector(".play-again-button");
+    replay.addEventListener("click", restartGame);
+}
+
+function run(eventObj) {
+    playerChoice = eventObj.target.getAttribute("class");
+    computerChoice = getComputerChoice();
+    updateChoices(playerChoice, computerChoice);
+    winner = playRound(playerChoice, computerChoice);
+    updateRoundResult(winner);
+    updateScore(winner, playerChoice, computerChoice);
+    const over = checkWinner(playerScore, computerScore);
+    if (over){
+        buttons.removeEventListener("click", run);
+        playAgain();
+    }
+}
+
+function incrementScore(winner, playerScore, computerScore){
+    if (winner === 0) playerScore += 1;
+    else if ( winner === 1) computerScore += 1;
+    else { 
+        computerScore += 1;
+        playerScore += 1;
+    }
+}
+
+function restartGame() {
+    document.querySelector(".player-score").textContent =  0;
+    document.querySelector(".computer-score").textContent = 0;
+    document.querySelector(".choices").textContent = "";
+    document.querySelector(".result").textContent = "";
+    document.querySelector(".replay-container").remove();
+    playerScore = 0;
+    computerScore = 0;
+    let buttons = document.querySelector(".container");
+    buttons.addEventListener("click", run);
+}    
+
+let buttons = document.querySelector(".container"); 
+buttons.addEventListener("click", run);
+
+
